@@ -41,7 +41,7 @@ def run_chat():
             break
     return chat_history
 
-# Main Streamlit app
+
 def main():
     st.title("Titanic Dataset Chatbot")
     st.sidebar.title("Chat History")
