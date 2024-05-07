@@ -24,28 +24,25 @@ agent = create_pandas_dataframe_agent(llm, df, verbose=True)
 # Function to run the chatbot
 def run_chat():
     chat_history = []
-    while True:
-        user_input = st.text_input("You:", key=f"user_input_{len(chat_history)}")
-        if user_input:
-            chat_history.append({"speaker": "You", "message": user_input})
-            thought_process_output = st.empty()
-            with st.spinner('Thinking...'):
-                # Capture the output of print statements
-                stdout_backup = sys.stdout
-                sys.stdout = StringIO()
-                try:
-                    agent.invoke(user_input)
-                finally:
-                    thought_process = re.sub(r'\x1b\[[0-9;]*m', '', sys.stdout.getvalue())  # Remove ANSI escape codes
-                    thought_process_output.text(thought_process)
-                    # Reset the stdout to the original value
-                    sys.stdout = stdout_backup
+    user_input = st.text_input("You:", key="user_input")
+    if st.button("Send"):
+        chat_history.append({"speaker": "You", "message": user_input})
+        thought_process_output = st.empty()
+        with st.spinner('Thinking...'):
+            # Capture the output of print statements
+            stdout_backup = sys.stdout
+            sys.stdout = StringIO()
+            try:
+                agent.invoke(user_input)
+            finally:
+                thought_process = re.sub(r'\x1b\[[0-9;]*m', '', sys.stdout.getvalue())  # Remove ANSI escape codes
+                thought_process_output.text(thought_process)
+                # Reset the stdout to the original value
+                sys.stdout = stdout_backup
 
-            response = agent.invoke(user_input)
-            chat_history.append({"speaker": "Bot", "message": response})
-            st.write("Bot:", response)
-        else:
-            break
+        response = agent.invoke(user_input)
+        chat_history.append({"speaker": "Bot", "message": response})
+        st.write("Bot:", response)
     return chat_history
 
 # Main Streamlit app
