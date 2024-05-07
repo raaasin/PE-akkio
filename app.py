@@ -5,6 +5,10 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 import os 
 import pandas as pd
 from dotenv import load_dotenv
+import sys
+from io import StringIO
+import contextlib
+import re
 
 # Load environment variables
 load_dotenv()
@@ -24,24 +28,27 @@ def run_chat():
         user_input = st.text_input("You:", key=f"user_input_{len(chat_history)}")
         if user_input:
             chat_history.append({"speaker": "You", "message": user_input})
-            thought_process = "Entering new AgentExecutor chain...\n" \
-                              "Thought: I can use the shape attribute of the dataframe to get the number of rows and columns\n" \
-                              "Action: python_repl_ast\n" \
-                              "Action Input: df.shape[0]\n" \
-                              "Final Answer: 891\n" \
-                              "Finished chain."
-            chat_history.append({"speaker": "Bot (Thought Process)", "message": thought_process})
+            thought_process_output = st.empty()
+            with st.spinner('Thinking...'):
+                # Capture the output of print statements
+                stdout_backup = sys.stdout
+                sys.stdout = StringIO()
+                try:
+                    agent.invoke(user_input)
+                finally:
+                    thought_process = re.sub(r'\x1b\[[0-9;]*m', '', sys.stdout.getvalue())  # Remove ANSI escape codes
+                    thought_process_output.text(thought_process)
+                    # Reset the stdout to the original value
+                    sys.stdout = stdout_backup
+
             response = agent.invoke(user_input)
             chat_history.append({"speaker": "Bot", "message": response})
             st.write("Bot:", response)
-            st.write("Bot (Thought Process):", thought_process)
-            # Print the thought process
-            st.write("Thought Process:", thought_process)  
         else:
             break
     return chat_history
 
-
+# Main Streamlit app
 def main():
     st.title("Titanic Dataset Chatbot")
     st.sidebar.title("Chat History")
