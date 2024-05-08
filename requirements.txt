@@ -1,0 +1,4 @@
+dotenv
+pandas
+google-ai-generativelanguage
+google-generativeai
