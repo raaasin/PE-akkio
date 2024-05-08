@@ -118,7 +118,7 @@ def main():
                             prompt_eng="Again another error occured, please take a look at the error and strictly only reply with the full python code do not apologize or anything just give the code "+str(e)
                             response = chat.send_message(prompt_eng, stream=True,generation_config=genai.types.GenerationConfig(
                             candidate_count=1,
-                            temperature=0.5))
+                            temperature=1))
                             all_text = ""
                             # Display generated content dynamically
                             for chunk in response:
